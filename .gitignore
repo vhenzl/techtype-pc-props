@@ -1,0 +1,17 @@
+# Node
+node_modules/
+dist/
+*.log
+
+# TypeScript
+*.tsbuildinfo
+
+# pnpm
+.pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+.env
