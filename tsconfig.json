@@ -1,0 +1,12 @@
+{
+  "extends": [
+    "@tsconfig/node24/tsconfig",
+    "@tsconfig/node-ts/tsconfig",
+    "@tsconfig/strictest/tsconfig",
+  ],
+  "compilerOptions": {
+    "noEmit": true,
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
