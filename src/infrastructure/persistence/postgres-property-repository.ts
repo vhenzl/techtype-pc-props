@@ -65,28 +65,9 @@ export class PostgresNodePropertyRepository implements NodePropertyRepository {
     }
 
     const query = `
-      WITH RECURSIVE node_path (id, name, parent_id, path) AS (
-        SELECT
-          id,
-          name,
-          parent_id,
-          '/' || name
-        FROM nodes
-        WHERE parent_id IS NULL
-
-        UNION ALL
-
-        SELECT
-          n.id,
-          n.name,
-          n.parent_id,
-          np.path || '/' || n.name
-        FROM nodes n
-        INNER JOIN node_path np ON n.parent_id = np.id
-      )
       SELECT p.id, p.node_id, p.name, p.value
       FROM node_properties p
-      INNER JOIN node_path np ON p.node_id = np.id
+      INNER JOIN nodes_with_path np ON p.node_id = np.id
       WHERE np.path = $1
     `;
 

@@ -54,27 +54,8 @@ export class PostgresNodeRepository implements NodeRepository {
     }
 
     const query = `
-      WITH RECURSIVE node_path (id, name, parent_id, path) AS (
-        SELECT
-          id,
-          name,
-          parent_id,
-          '/' || name
-        FROM nodes
-        WHERE parent_id IS NULL
-
-        UNION ALL
-
-        SELECT
-          n.id,
-          n.name,
-          n.parent_id,
-          np.path || '/' || n.name
-        FROM nodes n
-        INNER JOIN node_path np ON n.parent_id = np.id
-      )
       SELECT id, name, parent_id
-      FROM node_path
+      FROM nodes_with_path
       WHERE path = $1
     `;
 
