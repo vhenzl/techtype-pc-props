@@ -15,4 +15,8 @@ export interface NodePropertyRepository {
    */
   getAllByNodePath(path: string): Promise<NodeProperty[]>;
   add(property: NodeProperty): Promise<void>;
+  /**
+   * Checks if a property with the given name already exists for the specified node.
+   */
+  existsInNode(name: string, nodeId: NodeId): Promise<boolean>;
 }

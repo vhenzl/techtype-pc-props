@@ -149,4 +149,39 @@ describe('PostgresNodePropertyRepository', () => {
       expect(retrieved?.value.value).toBe(1.724752);
     });
   });
+
+  describe('existsInNode', () => {
+    it('returns true when property exists for node', async () => {
+      const nodeId = await createTestRootNode();
+      const propertyId = createNewNodePropertyId();
+      const value = new PropertyValue(123);
+      const property = new NodeProperty(propertyId, nodeId, 'ExistingProperty', value);
+
+      await propertyRepository.add(property);
+      const exists = await propertyRepository.existsInNode('ExistingProperty', nodeId);
+
+      expect(exists).toBe(true);
+    });
+
+    it('returns false when property does not exist for node', async () => {
+      const nodeId = await createTestRootNode();
+      const exists = await propertyRepository.existsInNode('NonExistentProperty', nodeId);
+
+      expect(exists).toBe(false);
+    });
+
+    it('returns false when property exists for different node', async () => {
+      const nodeId1 = await createTestRootNode();
+      const nodeId2 = await createTestRootNode();
+
+      const propertyId = createNewNodePropertyId();
+      const value = new PropertyValue(123);
+      const property = new NodeProperty(propertyId, nodeId1, 'TestProperty', value);
+
+      await propertyRepository.add(property);
+      const exists = await propertyRepository.existsInNode('TestProperty', nodeId2);
+
+      expect(exists).toBe(false);
+    });
+  });
 });

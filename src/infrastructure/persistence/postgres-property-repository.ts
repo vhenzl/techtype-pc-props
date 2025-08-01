@@ -82,4 +82,10 @@ export class PostgresNodePropertyRepository implements NodePropertyRepository {
 
     await this.client.query(query, values);
   }
+
+  async existsInNode(name: string, nodeId: NodeId): Promise<boolean> {
+    const query = 'SELECT 1 FROM node_properties WHERE name = $1 AND node_id = $2';
+    const result = await this.client.query(query, [name, nodeId]);
+    return result.rows.length > 0;
+  }
 }
