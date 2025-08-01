@@ -1,4 +1,5 @@
 import type { Client } from 'pg';
+import * as uuid from 'uuid';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Node, createNewNodeId, createNodeIdFrom } from '../../domain/node.ts';
 import { NotFoundError } from '../../domain/shared-kernel/errors.ts';
@@ -8,6 +9,11 @@ import { PostgresNodeRepository } from './postgres-node-repository.ts';
 describe('PostgresNodeRepository', () => {
   let client: Client;
   let repository: PostgresNodeRepository;
+  let uniqueNamePrefix: string;
+
+  function uniqueName(name: string): string {
+    return `${uniqueNamePrefix}:${name}`;
+  }
 
   beforeEach(async () => {
     const testConnectionString = process.env['DATABASE_URL'] || import.meta.env['VITE_DATABASE_URL'];
@@ -15,11 +21,13 @@ describe('PostgresNodeRepository', () => {
       throw new Error('TEST_DATABASE_URL or DATABASE_URL environment variable is required for integration tests');
     }
 
+    uniqueNamePrefix = `Test:${uuid.v4()}`;
     client = await createConnection(testConnectionString);
     repository = new PostgresNodeRepository(client);
   });
 
   afterEach(async () => {
+    await client.query('DELETE FROM nodes WHERE name LIKE $1', [`${uniqueNamePrefix}%`]);
     await client.end();
   });
 
@@ -124,11 +132,11 @@ describe('PostgresNodeRepository', () => {
   describe('add()', () => {
     it('adds a new node successfully', async () => {
       const rootId = createNewNodeId();
-      const rootUniqueName = `TestNode-${rootId}`;
-      const root = new Node(rootId, null, rootUniqueName);
+      const rootName = uniqueName('Node');
+      const root = new Node(rootId, null, rootName);
       const childId = createNewNodeId();
-      const childUniqueName = `TestNode-${childId}`;
-      const child = new Node(childId, rootId, childUniqueName);
+      const childName = uniqueName('Child');
+      const child = new Node(childId, rootId, childName);
 
       await repository.add(root);
       await repository.add(child);
@@ -137,12 +145,12 @@ describe('PostgresNodeRepository', () => {
 
       expect(retrievedRoot).not.toBeNull();
       expect(retrievedRoot?.id).toBe(rootId);
-      expect(retrievedRoot?.name).toBe(rootUniqueName);
+      expect(retrievedRoot?.name).toBe(rootName);
       expect(retrievedRoot?.parentId).toBe(null);
 
       expect(retrievedChild).not.toBeNull();
       expect(retrievedChild?.id).toBe(childId);
-      expect(retrievedChild?.name).toBe(childUniqueName);
+      expect(retrievedChild?.name).toBe(childName);
       expect(retrievedChild?.parentId).toBe(rootId);
     });
   });

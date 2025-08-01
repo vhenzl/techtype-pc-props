@@ -1,4 +1,5 @@
 import type { Client } from 'pg';
+import * as uuid from 'uuid';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createNewNodeId, createNodeIdFrom, type NodeId } from '../../domain/node.ts';
 import { NodeProperty, createNewNodePropertyId, createNodePropertyIdFrom } from '../../domain/property.ts';
@@ -10,11 +11,16 @@ import { PostgresNodePropertyRepository } from './postgres-property-repository.t
 describe('PostgresNodePropertyRepository', () => {
   let client: Client;
   let propertyRepository: PostgresNodePropertyRepository;
+  let uniqueNamePrefix: string;
+
+  function uniqueName(name: string): string {
+    return `${uniqueNamePrefix}:${name}`;
+  }
 
   async function createTestRootNode(): Promise<NodeId> {
     const nodeId = createNewNodeId();
-    const uniqueName = `TestNode-${nodeId}`;
-    const node = { id: nodeId, name: uniqueName, parentId: null };
+    const name = uniqueName(`Node-${nodeId}`);
+    const node = { id: nodeId, name, parentId: null };
     await client.query('INSERT INTO nodes (id, name, parent_id) VALUES ($1, $2, $3)', [node.id, node.name, node.parentId]);
     return nodeId;
   }
@@ -25,11 +31,13 @@ describe('PostgresNodePropertyRepository', () => {
       throw new Error('TEST_DATABASE_URL or DATABASE_URL environment variable is required for integration tests');
     }
 
+    uniqueNamePrefix = `Test:${uuid.v4()}`;
     client = await createConnection(testConnectionString);
     propertyRepository = new PostgresNodePropertyRepository(client);
   });
 
   afterEach(async () => {
+    await client.query('DELETE FROM nodes WHERE name LIKE $1', [`${uniqueNamePrefix}%`]);
     await client.end();
   });
 
