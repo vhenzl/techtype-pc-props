@@ -1,0 +1,59 @@
+-- Seed data for the PC component tree structure from assignment
+-- Using UUID v7 format with predictable suffixes: nodes end with -100000000xxx, properties with -200000000xxx
+
+-- AlphaPC root node
+INSERT INTO nodes (id, name, parent_id) VALUES
+  ('00000000-0000-7000-a000-100000000001', 'AlphaPC', NULL);
+
+-- AlphaPC properties
+INSERT INTO node_properties (id, node_id, name, value) VALUES
+  ('00000000-0000-7000-a000-200000000001', '00000000-0000-7000-a000-100000000001', 'Height', 450.00),
+  ('00000000-0000-7000-a000-200000000002', '00000000-0000-7000-a000-100000000001', 'Width', 180.00);
+
+-- Processing node
+INSERT INTO nodes (id, name, parent_id) VALUES
+  ('00000000-0000-7000-a000-100000000002', 'Processing', '00000000-0000-7000-a000-100000000001');
+
+-- Processing properties (RAM)
+INSERT INTO node_properties (id, node_id, name, value) VALUES
+  ('00000000-0000-7000-a000-200000000003', '00000000-0000-7000-a000-100000000002', 'RAM', 32000.00);
+
+-- CPU node
+INSERT INTO nodes (id, name, parent_id) VALUES
+  ('00000000-0000-7000-a000-100000000003', 'CPU', '00000000-0000-7000-a000-100000000002');
+
+-- CPU properties
+INSERT INTO node_properties (id, node_id, name, value) VALUES
+  ('00000000-0000-7000-a000-200000000004', '00000000-0000-7000-a000-100000000003', 'Cores', 4),
+  ('00000000-0000-7000-a000-200000000005', '00000000-0000-7000-a000-100000000003', 'Power', 2.41);
+
+-- Graphics node
+INSERT INTO nodes (id, name, parent_id) VALUES
+  ('00000000-0000-7000-a000-100000000004', 'Graphics', '00000000-0000-7000-a000-100000000002');
+
+-- Graphics properties
+INSERT INTO node_properties (id, node_id, name, value) VALUES
+  ('00000000-0000-7000-a000-200000000006', '00000000-0000-7000-a000-100000000004', 'RAM', 4000.00),
+  ('00000000-0000-7000-a000-200000000007', '00000000-0000-7000-a000-100000000004', 'Ports', 8.00);
+
+-- Storage node
+INSERT INTO nodes (id, name, parent_id) VALUES
+  ('00000000-0000-7000-a000-100000000005', 'Storage', '00000000-0000-7000-a000-100000000001');
+
+-- SSD node
+INSERT INTO nodes (id, name, parent_id) VALUES
+  ('00000000-0000-7000-a000-100000000006', 'SSD', '00000000-0000-7000-a000-100000000005');
+
+-- SSD properties
+INSERT INTO node_properties (id, node_id, name, value) VALUES
+  ('00000000-0000-7000-a000-200000000008', '00000000-0000-7000-a000-100000000006', 'Capacity', 1024.00),
+  ('00000000-0000-7000-a000-200000000009', '00000000-0000-7000-a000-100000000006', 'WriteSpeed', 250.00);
+
+-- HDD node
+INSERT INTO nodes (id, name, parent_id) VALUES
+  ('00000000-0000-7000-a000-100000000007', 'HDD', '00000000-0000-7000-a000-100000000005');
+
+-- HDD properties
+INSERT INTO node_properties (id, node_id, name, value) VALUES
+  ('00000000-0000-7000-a000-200000000010', '00000000-0000-7000-a000-100000000007', 'Capacity', 5120.00),
+  ('00000000-0000-7000-a000-200000000011', '00000000-0000-7000-a000-100000000007', 'WriteSpeed', 1.724752);
