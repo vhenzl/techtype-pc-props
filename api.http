@@ -3,3 +3,35 @@ GET http://localhost:3000/subtree/AlphaPC/Processing/CPU
 
 ### get AlphaPC/Processing/CPU node subtree
 GET http://localhost:3000/subtree/AlphaPC/Processing/CPU
+
+
+### post a new root node
+# @name postRootNode
+POST http://localhost:3000/nodes
+Content-Type: application/json
+
+{
+  "name": "New Node ({{$randomInt 1 100}})",
+  "parentNodeId": null,
+  "properties": [
+    {
+      "name": "Property",
+      "value": 123
+    }
+  ]
+}
+
+### post a new child node
+POST http://localhost:3000/nodes
+Content-Type: application/json
+
+{
+  "name": "New Child Node",
+  "parentNodeId": "{{postRootNode.response.body.data.id}}",
+  "properties": [
+    {
+      "name": "Property",
+      "value": 3.14
+    }
+  ]
+}
