@@ -9,50 +9,52 @@ import { withCommandLogging, withCommandValidation, withQueryValidation } from '
 import { createGetSubtreeController, createPostNodeController, createPostNodePropertyController } from './controllers.ts';
 import * as middlewares from './middleware.ts';
 
-// ----- services composition -----
-const db = await createConnection();
+export async function createApp(): Promise<express.Express> {
+  // ----- services composition -----
+  const db = await createConnection();
 
-const nodeRepository = new PostgresNodeRepository(db);
-const nodePropertyRepository = new PostgresNodePropertyRepository(db);
+  const nodeRepository = new PostgresNodeRepository(db);
+  const nodePropertyRepository = new PostgresNodePropertyRepository(db);
 
-const getSubtreeQueryHandler = withQueryValidation(
-  GetNodeSubtreeQuerySchema,
-  createGetNodeSubtreeQueryHandler({ db }),
-);
-const createNodeCommandHandler = withCommandLogging(
-  withCommandValidation(
-    CreateNodeCommandSchema,
-    createCreateNodeCommandHandler({ nodeRepository, nodePropertyRepository }),
-  ),
-);
-const createNodePropertyCommandHandler = withCommandLogging(
-  withCommandValidation(
-    CreateNodePropertyCommandSchema,
-    createCreateNodePropertyCommandHandler({ nodeRepository, nodePropertyRepository }),
-  ),
-);
-const getSubtreeController = createGetSubtreeController(getSubtreeQueryHandler);
-const postNodeController = createPostNodeController(
-  createNodeCommandHandler,
-  getSubtreeQueryHandler,
-);
-const postNodePropertyController = createPostNodePropertyController(
-  createNodePropertyCommandHandler,
-  getSubtreeQueryHandler,
-);
+  const getSubtreeQueryHandler = withQueryValidation(
+    GetNodeSubtreeQuerySchema,
+    createGetNodeSubtreeQueryHandler({ db }),
+  );
+  const createNodeCommandHandler = withCommandLogging(
+    withCommandValidation(
+      CreateNodeCommandSchema,
+      createCreateNodeCommandHandler({ nodeRepository, nodePropertyRepository }),
+    ),
+  );
+  const createNodePropertyCommandHandler = withCommandLogging(
+    withCommandValidation(
+      CreateNodePropertyCommandSchema,
+      createCreateNodePropertyCommandHandler({ nodeRepository, nodePropertyRepository }),
+    ),
+  );
+  const getSubtreeController = createGetSubtreeController(getSubtreeQueryHandler);
+  const postNodeController = createPostNodeController(
+    createNodeCommandHandler,
+    getSubtreeQueryHandler,
+  );
+  const postNodePropertyController = createPostNodePropertyController(
+    createNodePropertyCommandHandler,
+    getSubtreeQueryHandler,
+  );
 
-// ----- express app composition -----
-const app = express();
+  // ----- express app composition -----
+  const app = express();
 
-app.use(middlewares.logger);
-app.use(middlewares.requireJsonPost);
-app.use(express.json());
+  app.use(middlewares.logger);
+  app.use(middlewares.requireJsonPost);
+  app.use(express.json());
 
-app.post('/nodes', postNodeController);
-app.post('/nodes/:nodeId/properties', postNodePropertyController);
-app.get('/subtree/*path', getSubtreeController);
+  app.post('/nodes', postNodeController);
+  app.post('/nodes/:nodeId/properties', postNodePropertyController);
+  app.get('/subtree/*path', getSubtreeController);
 
-app.use(middlewares.errorLogger);
-app.use(middlewares.errorHandler);
+  app.use(middlewares.errorLogger);
+  app.use(middlewares.errorHandler);
 
-export default app;
+  return app;
+}

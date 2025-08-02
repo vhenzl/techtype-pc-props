@@ -1,5 +1,7 @@
-import app from './app.ts';
+import { createApp } from './app.ts';
+
 const PORT = process.env['PORT'] || 3000;
+const app = await createApp();
 
 app.get('/', (_, res) => {
   res.send('Hello from API!');
