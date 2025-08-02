@@ -1,11 +1,12 @@
 import express from 'express';
+import { createCreateNodePropertyCommandHandler, CreateNodePropertyCommandSchema } from '../application/use-cases/create-node-property.ts';
 import { createCreateNodeCommandHandler, CreateNodeCommandSchema } from '../application/use-cases/create-node.ts';
 import { createGetNodeSubtreeQueryHandler, GetNodeSubtreeQuerySchema } from '../application/use-cases/get-node-subtree.ts';
 import { createConnection } from '../infrastructure/persistence/db.ts';
 import { PostgresNodeRepository } from '../infrastructure/persistence/postgres-node-repository.ts';
 import { PostgresNodePropertyRepository } from '../infrastructure/persistence/postgres-property-repository.ts';
 import { withCommandLogging, withCommandValidation, withQueryValidation } from '../infrastructure/processing.ts';
-import { createGetSubtreeController, createPostNodeController } from './controllers.ts';
+import { createGetSubtreeController, createPostNodeController, createPostNodePropertyController } from './controllers.ts';
 import * as middlewares from './middleware.ts';
 
 // ----- services composition -----
@@ -24,9 +25,19 @@ const createNodeCommandHandler = withCommandLogging(
     createCreateNodeCommandHandler({ nodeRepository, nodePropertyRepository }),
   ),
 );
+const createNodePropertyCommandHandler = withCommandLogging(
+  withCommandValidation(
+    CreateNodePropertyCommandSchema,
+    createCreateNodePropertyCommandHandler({ nodeRepository, nodePropertyRepository }),
+  ),
+);
 const getSubtreeController = createGetSubtreeController(getSubtreeQueryHandler);
 const postNodeController = createPostNodeController(
   createNodeCommandHandler,
+  getSubtreeQueryHandler,
+);
+const postNodePropertyController = createPostNodePropertyController(
+  createNodePropertyCommandHandler,
   getSubtreeQueryHandler,
 );
 
@@ -38,7 +49,8 @@ app.use(middlewares.requireJsonPost);
 app.use(express.json());
 
 app.post('/nodes', postNodeController);
-app.use('/subtree/*path', getSubtreeController);
+app.post('/nodes/:nodeId/properties', postNodePropertyController);
+app.get('/subtree/*path', getSubtreeController);
 
 app.use(middlewares.errorLogger);
 app.use(middlewares.errorHandler);

@@ -21,17 +21,29 @@ Content-Type: application/json
   ]
 }
 
+### rootNodeId
+@rootNodeId = {{postRootNode.response.body.$.data.id}}
+
 ### post a new child node
 POST http://localhost:3000/nodes
 Content-Type: application/json
 
 {
   "name": "New Child Node",
-  "parentNodeId": "{{postRootNode.response.body.data.id}}",
+  "parentNodeId": "{{rootNodeId}}",
   "properties": [
     {
       "name": "Property",
       "value": 3.14
     }
   ]
+}
+
+### post a new property to an existing node
+POST http://localhost:3000/nodes/{{rootNodeId}}/properties
+Content-Type: application/json
+
+{
+  "name": "New Property",
+  "value": 3.14
 }
