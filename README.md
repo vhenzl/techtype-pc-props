@@ -4,7 +4,16 @@
 
 This project implements a backend system for managing a hierarchical tree of PC components (nodes) and their properties, as described in the [assignment](./assignment.md). It uses Node.js, TypeScript, PostgreSQL, and exposes a REST API for interaction.
 
+## Project Structure
+
+- `src/api/` — HTTP API (Express.js server)
+- `src/domain/` — Domain models (entities, value objects, repositories)
+- `src/application/` — Use cases (commands and queries)
+- `src/infrastructure/` — PostgreSQL persistence, processing middlewares
+- `supabase/` - Supabase configuration, migrations, seed data
+
 ## Prerequisites
+
 - Node.js (24+ for native TypeScript support)
 - pnpm
 - Docker (for local Supabase)
