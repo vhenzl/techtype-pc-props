@@ -1,0 +1,5 @@
+### get whole AlphaPC node tree
+GET http://localhost:3000/subtree/AlphaPC/Processing/CPU
+
+### get AlphaPC/Processing/CPU node subtree
+GET http://localhost:3000/subtree/AlphaPC/Processing/CPU
