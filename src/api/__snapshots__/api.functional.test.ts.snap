@@ -1,0 +1,142 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`API endpoint > GET /subtree/*path > responds with expected json for path "/AlphaPC" 1`] = `
+{
+  "data": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "id": "00000000-0000-7000-a000-100000000003",
+            "name": "CPU",
+            "parentId": "00000000-0000-7000-a000-100000000002",
+            "properties": [
+              {
+                "id": "00000000-0000-7000-a000-200000000004",
+                "name": "Cores",
+                "value": 4,
+              },
+              {
+                "id": "00000000-0000-7000-a000-200000000005",
+                "name": "Power",
+                "value": 2.41,
+              },
+            ],
+          },
+          {
+            "children": [],
+            "id": "00000000-0000-7000-a000-100000000004",
+            "name": "Graphics",
+            "parentId": "00000000-0000-7000-a000-100000000002",
+            "properties": [
+              {
+                "id": "00000000-0000-7000-a000-200000000007",
+                "name": "Ports",
+                "value": 8,
+              },
+              {
+                "id": "00000000-0000-7000-a000-200000000006",
+                "name": "RAM",
+                "value": 4000,
+              },
+            ],
+          },
+        ],
+        "id": "00000000-0000-7000-a000-100000000002",
+        "name": "Processing",
+        "parentId": "00000000-0000-7000-a000-100000000001",
+        "properties": [
+          {
+            "id": "00000000-0000-7000-a000-200000000003",
+            "name": "RAM",
+            "value": 32000,
+          },
+        ],
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "id": "00000000-0000-7000-a000-100000000007",
+            "name": "HDD",
+            "parentId": "00000000-0000-7000-a000-100000000005",
+            "properties": [
+              {
+                "id": "00000000-0000-7000-a000-200000000010",
+                "name": "Capacity",
+                "value": 5120,
+              },
+              {
+                "id": "00000000-0000-7000-a000-200000000011",
+                "name": "WriteSpeed",
+                "value": 1.724752,
+              },
+            ],
+          },
+          {
+            "children": [],
+            "id": "00000000-0000-7000-a000-100000000006",
+            "name": "SSD",
+            "parentId": "00000000-0000-7000-a000-100000000005",
+            "properties": [
+              {
+                "id": "00000000-0000-7000-a000-200000000008",
+                "name": "Capacity",
+                "value": 1024,
+              },
+              {
+                "id": "00000000-0000-7000-a000-200000000009",
+                "name": "WriteSpeed",
+                "value": 250,
+              },
+            ],
+          },
+        ],
+        "id": "00000000-0000-7000-a000-100000000005",
+        "name": "Storage",
+        "parentId": "00000000-0000-7000-a000-100000000001",
+        "properties": [],
+      },
+    ],
+    "id": "00000000-0000-7000-a000-100000000001",
+    "name": "AlphaPC",
+    "parentId": null,
+    "properties": [
+      {
+        "id": "00000000-0000-7000-a000-200000000001",
+        "name": "Height",
+        "value": 450,
+      },
+      {
+        "id": "00000000-0000-7000-a000-200000000002",
+        "name": "Width",
+        "value": 180,
+      },
+    ],
+  },
+}
+`;
+
+exports[`API endpoint > GET /subtree/*path > responds with expected json for path "/AlphaPC/Processing/CPU" 1`] = `
+{
+  "data": {
+    "children": [],
+    "id": "00000000-0000-7000-a000-100000000003",
+    "name": "CPU",
+    "parentId": "00000000-0000-7000-a000-100000000002",
+    "properties": [
+      {
+        "id": "00000000-0000-7000-a000-200000000004",
+        "name": "Cores",
+        "value": 4,
+      },
+      {
+        "id": "00000000-0000-7000-a000-200000000005",
+        "name": "Power",
+        "value": 2.41,
+      },
+    ],
+  },
+}
+`;
