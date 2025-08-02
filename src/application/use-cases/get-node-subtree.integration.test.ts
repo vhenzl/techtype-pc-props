@@ -31,7 +31,7 @@ describe('get node subtree query', () => {
   it('returns single node with properties when querying leaf node', async () => {
     // CPU node from seed data
     const cpuId = '00000000-0000-7000-a000-100000000003';
-    const query = createGetNodeSubtreeQuery(cpuId);
+    const query = createGetNodeSubtreeQuery({ nodeId: cpuId });
 
     const result = await handler(query);
 
@@ -51,7 +51,7 @@ describe('get node subtree query', () => {
   it('returns complete subtree from root node', async () => {
     // AlphaPC root node from seed data
     const alphaId = '00000000-0000-7000-a000-100000000001';
-    const query = createGetNodeSubtreeQuery(alphaId);
+    const query = createGetNodeSubtreeQuery({ nodeId: alphaId });
 
     const result = await handler(query);
 
@@ -84,9 +84,25 @@ describe('get node subtree query', () => {
     expect(cpuGrandchild?.properties).toHaveLength(2);
   });
 
+  it('returns the same subtree when queried by nodeId and by path', async () => {
+    // AlphaPC root node from seed data
+    const alphaId = '00000000-0000-7000-a000-100000000001';
+    const alphaPath = '/AlphaPC';
+
+    const byIdQuery = createGetNodeSubtreeQuery({ nodeId: alphaId });
+    const byPathQuery = createGetNodeSubtreeQuery({ path: alphaPath });
+
+    const [byIdResult, byPathResult] = await Promise.all([
+      handler(byIdQuery),
+      handler(byPathQuery),
+    ]);
+
+    expect(byIdResult).toEqual(byPathResult);
+  });
+
   it('throws NotFoundError when node does not exist', async () => {
     const nonExistentId = createNewNodeId();
-    const query = createGetNodeSubtreeQuery(nonExistentId);
+    const query = createGetNodeSubtreeQuery({ nodeId: nonExistentId });
 
     const result = handler(query);
 
@@ -94,8 +110,10 @@ describe('get node subtree query', () => {
     await expect(result).rejects.toThrow(`Node with id ${nonExistentId} not found`);
   });
 
-  it('throws InvalidQueryError for invalid query data', async () => {
-    const query = createGetNodeSubtreeQuery('invalid-uuid');
+  it.for(
+    [[''], ['invalid'], ['10000000-0000-0000-0000-000000000000']] as Array<[string]>,
+  )('throws InvalidQueryError for invalid query data (by.nodeId = "%s")', async ([nodeId]) => {
+    const query = createGetNodeSubtreeQuery({ nodeId });
 
     const result = handler(query);
 
@@ -104,7 +122,26 @@ describe('get node subtree query', () => {
       errors: [
         {
           message: 'Invalid UUID',
-          path: ['nodeId'],
+          path: ['by', 'nodeId'],
+        },
+      ],
+      name: 'InvalidQueryError',
+    }) as InvalidQueryError);
+  });
+
+  it.for(
+    [[''], ['/'], ['invalid']] as Array<[string]>,
+  )('throws InvalidQueryError for invalid query data (by.path = "%s")', async ([path]) => {
+    const query = createGetNodeSubtreeQuery({ path });
+
+    const result = handler(query);
+
+    await expect(result).rejects.toThrow(InvalidQueryError);
+    await expect(result).rejects.toThrow(expect.objectContaining({
+      errors: [
+        {
+          message: 'Path must start with a slash and not be empty',
+          path: ['by', 'path'],
         },
       ],
       name: 'InvalidQueryError',

@@ -1,17 +1,21 @@
 import type { Client } from 'pg';
 import { z } from 'zod';
 import { NotFoundError } from '../../domain/shared-kernel/errors.ts';
+
 import { createQuerySchema, type QueryHandler } from '../building-blocks/query.ts';
 import type { NodeDto } from './dtos/node-subtree.ts';
 
+const ByNodeId = z.object({ nodeId: z.uuid() });
+const ByPath = z.object({ path: z.string().regex(/^\/.+$/, 'Path must start with a slash and not be empty') });
+
 export const GetNodeSubtreeQuerySchema = createQuerySchema('GetNodeSubtree', {
-  nodeId: z.string().uuid(),
+  by: z.union([ByNodeId, ByPath]),
 });
 
 export type GetNodeSubtreeQuery = z.infer<typeof GetNodeSubtreeQuerySchema>;
 
-export function createGetNodeSubtreeQuery(nodeId: string): GetNodeSubtreeQuery {
-  return { nodeId, __name: 'GetNodeSubtree' };
+export function createGetNodeSubtreeQuery(by: { nodeId: string } | { path: string }): GetNodeSubtreeQuery {
+  return { by, __name: 'GetNodeSubtree' };
 }
 
 export type GetNodeSubtreeResult = NodeDto;
@@ -34,16 +38,20 @@ export function createGetNodeSubtreeQueryHandler({
   db,
 }: Dependencies): QueryHandler<GetNodeSubtreeQuery, GetNodeSubtreeResult> {
   return async (query) => {
+    const nodeId = 'nodeId' in query.by ? query.by.nodeId : null;
+    const path = 'path' in query.by ? query.by.path : null;
+
     const subtreeQuery = `
       WITH RECURSIVE subtree (id, name, parent_id, depth) AS (
         SELECT id, name, parent_id, 0
-        FROM nodes
-        WHERE id = $1
+        FROM nodes_with_path
+        WHERE (($1::uuid IS NOT NULL AND id = $1)
+          OR ($2::text IS NOT NULL AND path = $2))
 
         UNION ALL
 
         SELECT n.id, n.name, n.parent_id, s.depth + 1
-        FROM nodes n
+        FROM nodes_with_path n
         INNER JOIN subtree s ON n.parent_id = s.id
       )
       SELECT
@@ -59,10 +67,10 @@ export function createGetNodeSubtreeQueryHandler({
       ORDER BY s.depth, s.name, p.name
     `;
 
-    const result = await db.query<SubtreeRow>(subtreeQuery, [query.nodeId]);
+    const result = await db.query<SubtreeRow>(subtreeQuery, [nodeId, path]);
 
     if (result.rows.length === 0) {
-      throw new NotFoundError(`Node with id ${query.nodeId} not found`);
+      throw new NotFoundError(`Node with ${nodeId ? 'id' : 'path'} ${nodeId || path} not found`);
     }
 
     const nodeMap = new Map<string, NodeDto>();
@@ -96,6 +104,7 @@ export function createGetNodeSubtreeQueryHandler({
       }
     }
 
-    return nodeMap.get(query.nodeId)!;
+    const rootId = result.rows[0]!.id;
+    return nodeMap.get(rootId)!;
   };
 }
